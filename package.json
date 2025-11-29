@@ -1,0 +1,25 @@
+{
+  "name": "chatting-dude",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node .",
+    "node .": "mode run index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.11.3",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.17.2",
+    "mongoose": "^6.1.10",
+    "reconlx": "^2.5.2"
+  },
+  "devDependencies": {
+    "node": "^16.13.2"
+  },
+  "description": ""
+}
