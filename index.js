@@ -83,7 +83,7 @@ const imageCommands = {
 
 async function getSassyResponse(userMessage) {
   // For text-only input, use the gemini-pro model
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `${SYSTEM_PROMPT}\n\nUser: ${userMessage}\nChatter:`;
 
