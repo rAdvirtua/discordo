@@ -105,25 +105,27 @@ async function getSassyResponse(userMessage) {
         const result = await model.generateContent(prompt);
         let text = result.response.text();
         
-        // --- START FIX: Ensure single-message output ---
+        // --- START FINAL CODE GUARDRAILS: GUARANTEE SINGLE MESSAGE ---
         
-        // 1. Trim leading/trailing whitespace and newlines
+        // 1. Trim leading/trailing whitespace and remove all internal newlines/carriage returns
         text = text.trim(); 
-        
-        // 2. Remove all internal newlines and replace with a space
-        text = text.replace(/\n/g, ' '); 
+        text = text.replace(/[\r\n]+/g, ' '); 
 
-        // 3. Extract only the first complete sentence (enforcing the one-sentence rule programmatically)
-        // This is a robust way to prevent the model from accidentally outputting multiple sentences.
-        const sentenceEndMatch = text.match(/[^.!?]*[.!?]/);
+        // 2. Robustly enforce the one-sentence rule: extract the first period, exclamation, or question mark.
+        // This is the most important part of the code fix.
+        const sentenceEndMatch = text.match(/^(.+?[.!?])\s*|(.+)$/);
+        
         if (sentenceEndMatch) {
-            text = sentenceEndMatch[0].trim();
-        } else {
-            // If no end punctuation is found (e.g., just a short phrase), use the whole thing.
-            text = text;
+            // Use the captured group that contains the content (group 1 is a full sentence, group 2 is the remainder).
+            text = (sentenceEndMatch[1] || sentenceEndMatch[2] || text).trim();
         }
 
-        // --- END FIX ---
+        // 3. Safety Check: If the message is still too long (e.g., failed to find punctuation)
+        if (text.length > 250) {
+            text = text.substring(0, 250).trim() + '...';
+        }
+
+        // --- END FINAL CODE GUARDRAILS ---
         
         return text;
     } catch (error) {
@@ -138,7 +140,8 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async message => {
-    if (message.author.bot) return;
+    // This prevents the bot from replying to itself or other bots, which is good.
+    if (message.author.bot) return; 
     
     const content = message.content;
     const lowerContent = content.toLowerCase();
@@ -207,8 +210,10 @@ client.on('messageCreate', async message => {
         return;
     }
     
+    // The sassy response logic is here
     const sassyResponse = await getSassyResponse(content);
     if (sassyResponse) {
+        // Since the text is cleaned to be a single line, this sends ONE message.
         message.channel.send(sassyResponse);
     }
 });
